@@ -8,6 +8,9 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.springframework.stereotype.Service;
+
+@Service
 public class HangmanServiceImpl implements HangmanService {
 
   public static final String[] WORDS_LIST = {
@@ -72,9 +75,13 @@ public class HangmanServiceImpl implements HangmanService {
 
   @Override
   public String startNewGame() {
-    String gameId = UUID.randomUUID().toString();
     int wordIndex = new Random().nextInt(WORDS_LIST.length);
     String word = WORDS_LIST[wordIndex];
+    return startNewGame(word);
+  }
+
+  public String startNewGame(String word) {
+    String gameId = UUID.randomUUID().toString();
     String maskedWord = maskWord(word);
     Set<Character> guessed = initGuessedLetters(word);
     GameDescriptor descr = new GameDescriptor(gameId, word, maskedWord, guessed);
@@ -107,27 +114,44 @@ public class HangmanServiceImpl implements HangmanService {
 
   @Override
   public Set<Character> getRemainingLetters(String gameId) {
-    GameDescriptor game = ongoingGames.get(gameId);
-    if (game == null) {
-      throw new IllegalArgumentException("No ongoing game with id=" + gameId);
-    }
-
+    var game = getGameDescriptor(gameId);
     Set<Character> guessed = game.getGuessed();
-    Set<Character> remaining =
-        String.valueOf(getAlphabet()).chars().mapToObj(ch -> (char) ch).collect(Collectors.toSet());
+    Set<Character> remaining = getAlphabet();
     remaining.removeAll(guessed);
     return remaining;
   }
 
   @Override
   public String getMaskedWord(String gameId) {
-    // TODO Auto-generated method stub
-    return null;
+    var game = getGameDescriptor(gameId);
+    return game.getMaskedWord();
   }
 
   @Override
-  public boolean makeTry(char nextTry) {
-    // TODO Auto-generated method stub
-    return false;
+  public GameDescriptor getGameDescriptor(String gameId) {
+    GameDescriptor game = ongoingGames.get(gameId);
+    if (game == null) {
+      throw new IllegalArgumentException("No ongoing game with id=" + gameId);
+    }
+
+    return game;
+  }
+
+  @Override
+  public boolean makeTry(String gameId, char nextTry) {
+    boolean found = false;
+    var game = getGameDescriptor(gameId);
+    game.getGuessed().add(nextTry);
+    String word = game.getWord();
+    StringBuilder maskedWord = new StringBuilder(game.getMaskedWord());
+    int pos = word.indexOf(nextTry);
+    while (pos >= 0) {
+      maskedWord.setCharAt(pos, nextTry);
+      pos = word.indexOf(nextTry, pos + 1);
+      found = true;
+    }
+
+    game.setMaskedWord(maskedWord.toString());
+    return found;
   }
 }

@@ -2,6 +2,8 @@ package com.smashx.hangman;
 
 import java.util.Set;
 
+import com.smashx.hangman.HangmanServiceImpl.GameDescriptor;
+
 public interface HangmanService {
 
   Set<Character> getAlphabet();
@@ -14,5 +16,7 @@ public interface HangmanService {
 
   String getMaskedWord(String gameId);
 
-  boolean makeTry(char nextTry);
+  boolean makeTry(String gameId, char nextTry);
+
+GameDescriptor getGameDescriptor(String gameId);
 }

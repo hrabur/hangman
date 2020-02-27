@@ -5,19 +5,9 @@
 <title>OMG Hangman</title>
 </head>
 <body>
-Wellcome to OMG Hangman!!!
-<div th:if="${error != null}">
-<span th:text="${error}">Test</span>
-</div>
-
-<form action="/try" method="post">
-  <label for="fname">First name:</label><br>
-  <input type="text" id="fname" name="fname"><br>
-  <label for="lname">Last name:</label><br>
-  <input type="text" id="lname" name="lname"><br><br>
-  <input type="submit" value="Submit">
-</form> 
-
-<a th:each="l : ${alphabet}" th:href="http://localhost:8080/try?l=${l}"><span th:text="${l}"></span></a>
+	<h1>Wellcome to OMG Hangman!!!</h1>
+	<form action="/games" method="post">
+		<button type="submit">Hang the man</button>
+	</form>
 </body>
 </html>

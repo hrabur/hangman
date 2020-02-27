@@ -1,50 +1,35 @@
 package com.smashx.hangman;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
 @Controller
 public class HomeController {
 
-	public static class Name {
-		private String fname;
-		private String lname;
+  @Autowired private HangmanService hangmanService;
 
-		public String getFname() {
-			return fname;
-		}
+  @GetMapping("/")
+  public String home() {
+    return "home";
+  }
 
-		public void setFname(String fname) {
-			this.fname = fname;
-		}
+  @PostMapping("/games")
+  public String checkLetter() {
+    String gameId = hangmanService.startNewGame();
+    return "redirect:/games/" + gameId;
+  }
 
-		public String getLname() {
-			return lname;
-		}
-
-		public void setLname(String lname) {
-			this.lname = lname;
-		}
-
-	}
-
-	@GetMapping("/")
-	public String home(ModelMap model) {
-		char[] alphabet = "ABCDEF".toCharArray();
-		model.addAttribute("alphabet", alphabet);
-		return "home";
-	}
-
-	@PostMapping("/try")
-	public String checkLetter(Name name, ModelMap model) {
-		if (name.getFname().length() == 0 || name.getLname().length() == 0) {
-			model.addAttribute("error", "First and last name are mandatory");
-			return "redirect:/";
-		}
-
-		model.addAttribute("name", name);
-		return "greeting";
-	}
+  @GetMapping("/games/{gameId}")
+  public String game(@PathVariable String gameId, ModelMap model) {
+    var maskedWord = hangmanService.getMaskedWord(gameId);
+    model.addAttribute("word", maskedWord);
+    var remaining = hangmanService.getRemainingLetters(gameId);
+    model.addAttribute("remaining", remaining);
+    model.addAttribute("gameId", gameId);
+    return "hangman";
+  }
 }

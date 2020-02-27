@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 
 class HangmanServiceTest {
 
-  HangmanService hangman;
+  HangmanServiceImpl hangman;
 
   @BeforeEach
   public void setUp() {
@@ -19,15 +19,20 @@ class HangmanServiceTest {
   }
 
   @Test
-  void testGetAlphabet() {
-    assertThat(hangman.getAlphabet()).isEqualTo("abcdefghijklmnopqrstuvwxyz".toCharArray());
-  }
-
-  @Test
   void testMaskWord() {
     assertThat(HangmanServiceImpl.maskWord("jazz")).isEqualTo("j_zz");
     assertThat(HangmanServiceImpl.maskWord("xenophobia")).isEqualTo("x________a");
     assertThat(HangmanServiceImpl.maskWord("bugaboo")).isEqualTo("b___boo");
+  }
+
+  @Test
+  void testMakeTry() {
+    String gameId = hangman.startNewGame("abcd");
+    assertThat(hangman.makeTry(gameId, 'b')).isTrue();
+    assertThat(hangman.getMaskedWord(gameId)).isEqualTo("ab_d");
+    assertThat(hangman.getRemainingLetters(gameId)).hasSize(23);
+    assertThat(hangman.makeTry(gameId, 'f')).isFalse();
+    assertThat(hangman.getRemainingLetters(gameId)).hasSize(22);
   }
 
   @Test
@@ -44,8 +49,9 @@ class HangmanServiceTest {
             letter -> {
               // assertThat(word).doesNotContain(remainingLetters);
             });
+
     char nextTry = random(remainingLetters);
-    boolean success = hangman.makeTry(nextTry);
+    boolean success = hangman.makeTry(gameId, nextTry);
     assertThat(hangman.getRemainingLetters(gameId).size()).isEqualTo(remainingLetters.size() - 1);
   }
 
