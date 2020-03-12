@@ -22,6 +22,7 @@ public class HangmanServiceImpl implements HangmanService {
     String word;
     String maskedWord;
     Set<Character> guessed;
+    Set<Character> remaining;
 
     public GameDescriptor(String gameId, String word, String maskedWord, Set<Character> guessed) {
       this.gameId = gameId;
@@ -61,6 +62,14 @@ public class HangmanServiceImpl implements HangmanService {
     public void setGuessed(Set<Character> guessed) {
       this.guessed = guessed;
     }
+
+    public Set<Character> getRemaining() {
+      return remaining;
+    }
+
+    public void setRemaining(Set<Character> remaining) {
+      this.remaining = remaining;
+    }
   }
 
   private Map<String, GameDescriptor> ongoingGames = new HashMap<>();
@@ -86,6 +95,7 @@ public class HangmanServiceImpl implements HangmanService {
     Set<Character> guessed = initGuessedLetters(word);
     GameDescriptor descr = new GameDescriptor(gameId, word, maskedWord, guessed);
     ongoingGames.put(gameId, descr);
+    descr.setRemaining(getRemainingLetters(gameId));
     return gameId;
   }
 
@@ -142,6 +152,7 @@ public class HangmanServiceImpl implements HangmanService {
     boolean found = false;
     var game = getGameDescriptor(gameId);
     game.getGuessed().add(nextTry);
+    game.setRemaining(getRemainingLetters(gameId));
     String word = game.getWord();
     StringBuilder maskedWord = new StringBuilder(game.getMaskedWord());
     int pos = word.indexOf(nextTry);
